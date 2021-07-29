@@ -16,7 +16,7 @@ function Add() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                dato
+                "data" : dato
             })
         })
         const data = await res.json()

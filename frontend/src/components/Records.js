@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 
 function Records() {
-  const url = 'http://localhost:5000/all'
+  const url = process.env.REACT_APP_API + '/all'
   const [todos, setTodos] = useState()
   const [temp, setTemp] = useState(0)
 
@@ -11,7 +11,6 @@ function Records() {
     const reponseJSON = await reponse.json()
     setTodos(reponseJSON)
   }
-
 
 
   useEffect(() => {
@@ -23,14 +22,13 @@ function Records() {
 
   useEffect(() => {
     fetchApi()
+  // eslint-disable-next-line
   }, [temp]);
 
-  const card = (date, dato, lastDato) => {
+  const card = (dato, lastDato) => {
     return <section class="card">
       <p className="dato">Dato: {dato}</p>
       <p className="dato">Dato anterior: {lastDato}</p>
-      <p className="date">Date: {date}</p>
-
     </section>
   }
 
@@ -43,7 +41,7 @@ function Records() {
       <h1>Records</h1>
       {!todos ? 'Loading...' :
         todos.map((todo, index) => {
-          return card(todo.date, todo.dato, todo['last dato'])
+          return card(todo.block_data, todo.prev_hash)
         })
       }
     </div>
