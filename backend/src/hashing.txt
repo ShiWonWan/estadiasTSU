@@ -1,0 +1,5 @@
+
+{'data': 'hola', 'prev data': '7ed60de1b1eb9b5b4e2ff4954134e102b7749133b8e3af6c8854571c7e8c2d9e'},
+{'data': 'xd', 'prev data': '834a750ba9054ed3ab79f62a7ea1ee80068acd6c534b6d3ee545122790e2a1f7'},
+{'data': '45°c', 'prev data': '634216cd701c586d2e58e2f401163b2629c44d1a7be78bfde87ace9d106e03a0'},
+{'data': '55°c', 'prev data': 'f63fc1457a08cc15ea471aa0f95b9ab109c4dd172fb0c8067100640aeafad2ff'},

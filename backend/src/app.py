@@ -1,19 +1,33 @@
+# BLOCK CLASS IMPORT
+from block import Block
+
+# SERVER IMPORTS
 from flask import Flask, request, jsonify
 from flask.json import jsonify
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
+
+# LANGUAGE IMPORTS
 import json
 import hashlib
 from datetime import datetime
 
-
+# SERVER AND DB CONFIG
 app = Flask(__name__)
 app.config['MONGO_URI'] = 'mongodb://localhost/blockChain'
 mongo = PyMongo(app)
-
 CORS(app)
-
 db = mongo.db.datos
+
+# ARRAY OF BLOCKS
+blocks = []
+initial_block = Block("INITIAL BLOCK", datetime.now())
+
+blocks.append(initial_block)
+
+lastDocs = db.find()
+for doc in lastDocs:
+    blocks.append(Block(doc["prev data"], doc["data"]))
 
 # TEST END POINT
 @app.route('/')
@@ -23,28 +37,27 @@ def index():
 # NEW ONE
 @app.route('/new', methods=['POST'])
 def createOne():
+
     # LAST BLOCK
-    docTo = db.find().sort('date', -1).limit(1)
-    for doc in docTo:
-        last = doc
-    lastHash = last['dato']
-    newHash = hashlib.sha256(request.json['dato'].encode('utf-8')).hexdigest()
+    lastHash = blocks[-1].block_hash
+    newHash = request.json['data']
 
     # INSERT TO MONGO
     id = db.insert({
-        'dato' : newHash,
-        'last dato' : lastHash,
-        'date': datetime.now()
+        'data' : newHash,
+        'prev data' : lastHash,
     })
 
     # INSERT INTO .TXT FILE WITH THE ID NAME
     file = open('hashing.txt', 'a+')
     file.write("\n"+str({
-        'dato' : newHash,
-        'last dato' : lastHash,
-        'date': datetime.now()
+        'data' : newHash,
+        'prev data' : lastHash,
     })+',')
     file.close()
+
+    # ADD THE NEW BLOCK TO THE LIST
+    blocks.append(Block(lastHash, newHash))
 
     # RETURN JUST THE ID
     return jsonify(str(ObjectId(id)))
@@ -52,15 +65,7 @@ def createOne():
 # GET ALL
 @app.route('/all', methods=['GET'])
 def getAll():
-    docs = []
-    for doc in db.find():
-        docs.append({
-            '_id' : str(ObjectId(doc['_id'])),
-            'dato' : doc['dato'],
-            'last dato' : doc['last dato'],
-            'date': doc['date']
-        })
-    return jsonify(docs[::-1])
+    return json.dumps([block.__dict__ for block in blocks])
 
 
 if __name__ == '__main__':
