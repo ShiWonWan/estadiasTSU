@@ -6,7 +6,7 @@ class PoW:
 
     def __init__(self, cpus, block):
 
-        # Equivalente = 2 0's al frente de hash
+        # Equivalente = 1 0's al frente de hash
         self.difficulty_hash = 0x0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
         self.miners = []
