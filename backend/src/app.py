@@ -1,5 +1,6 @@
-# BLOCK CLASS IMPORT
+# BLOCK CLASS IMPORT AND POW
 from block import Block
+from pow import PoW
 
 # SERVER IMPORTS
 from flask import Flask, request, jsonify
@@ -19,15 +20,28 @@ mongo = PyMongo(app)
 CORS(app)
 db = mongo.db.datos
 
+# CPUS
+
+myPc = 3 * ['myPc'] # 3 cpu units
+anotherPc = 2 * ['anotherPc'] # 2 cpu units
+AlfonsoPc = 4 * ['AlfonsoPc'] # 4 cpu units
+sisPc = 2 * ['sisPc'] # 2 cpu units
+
+cpus = [myPc, anotherPc, AlfonsoPc, sisPc]
+
 # ARRAY OF BLOCKS
+
 blocks = []
-initial_block = Block("INITIAL BLOCK", datetime.now())
+initial_block = Block("GENESIS BLOCK", datetime.now())
+PoW(cpus, initial_block)
 
 blocks.append(initial_block)
 
 lastDocs = db.find()
 for doc in lastDocs:
-    blocks.append(Block(doc["prev data"], doc["data"]))
+    NewBlock = Block(doc["prev data"], doc["data"])
+    PoW(cpus, NewBlock)
+    blocks.append(NewBlock)
 
 # TEST END POINT
 @app.route('/')
@@ -43,7 +57,7 @@ def createOne():
     newHash = request.json['data']
 
     # INSERT TO MONGO
-    id = db.insert({
+    id = db.insert_one({
         'data' : newHash,
         'prev data' : lastHash,
     })
@@ -57,10 +71,12 @@ def createOne():
     file.close()
 
     # ADD THE NEW BLOCK TO THE LIST
-    blocks.append(Block(lastHash, newHash))
+    NewBlock = Block(lastHash, newHash)
+    PoW(cpus, NewBlock)
+    blocks.append(NewBlock)
 
     # RETURN JUST THE ID
-    return jsonify(str(ObjectId(id)))
+    return jsonify(str(ObjectId(id.inserted_id)))
 
 # GET ALL
 @app.route('/all', methods=['GET'])
